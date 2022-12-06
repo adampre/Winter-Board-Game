@@ -1,6 +1,6 @@
 # Winter Themed Board Game
 
-**Introduction**
+**INTRODUCTION**
 
 Coding assignment for my class, HL IB Computer Science 2. I coded a winter themed board game. Inspired from my drum teacher, who used this to do a winter board game with his class. 
 
