@@ -9,6 +9,7 @@ public class GamePanel extends JPanel
 {
     private final File[] IMAGEFILES = {new File("PlayerImages/Player1.png"), new File("PlayerImages/Player2.png"), new File("PlayerImages/Player3.png"), null};    
     private final Random RANDOM = new Random();
+    private final String TILETYPES = "ulrd";
 
     private int dimension;
 
@@ -54,7 +55,7 @@ public class GamePanel extends JPanel
 
     public void initBoard()
     {
-
+        
     }
 
     @Override
