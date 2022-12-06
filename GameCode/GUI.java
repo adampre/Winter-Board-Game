@@ -13,7 +13,7 @@ public class GUI extends JFrame implements ActionListener
         this.setBounds(0, 0, 1000, 1000);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        gamePanel = new GamePanel(numberOfPlayers);
+        gamePanel = new GamePanel(numberOfPlayers, this.getWidth());
         gamePanel.initPlayers();
         gamePanel.initBoard();
 

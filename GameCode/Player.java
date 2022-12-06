@@ -1,22 +1,44 @@
+import java.io.File;
+import java.io.IOException;
+import java.awt.Image;
+import javax.imageio.ImageIO;
 import java.awt.Point;
 
 public class Player 
 {
-    private Point indexes;
+    public Image image;
 
-    private int health;
-    private int speed;
-    private int strength;
-    private int numberofSnowballs;
+    public Point indexes;
 
-    public Player(Point indexes, int health, int speed, int strength)
+    public int health;
+    public int speed;
+    public int strength;
+    public int numberofSnowballs;
+
+    public boolean isSafe;
+
+    public Player(File imageFile, Point indexes, int speed, int strength)
     {
+        if(imageFile != null)
+        {
+            try
+            {
+                image = ImageIO.read(imageFile);
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
         this.indexes = indexes;
 
-        this.health = health;
+        this.health = 10;
         this.speed = speed;
         this.strength = strength;
 
         numberofSnowballs = strength;
+
+        isSafe = false;
     }
 }
