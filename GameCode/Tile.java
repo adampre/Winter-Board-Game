@@ -6,11 +6,13 @@ import java.awt.Point;
 
 public class Tile 
 {
-    private Image image;
+    public Image image;
 
-    private Point position;
+    public Point position;
 
-    public Tile(File imageFile, Point position)
+    public String tileType;
+
+    public Tile(File imageFile, Point position, String tileType)
     {
         if(imageFile != null)
         {
@@ -25,5 +27,7 @@ public class Tile
         }
 
         this.position = position;
+
+        this.tileType = tileType;
     }
 }
