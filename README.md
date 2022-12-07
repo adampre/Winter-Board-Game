@@ -20,8 +20,9 @@ Coding assignment for my class, HL IB Computer Science 2. I coded a winter theme
 |3|0 0 0 1 1 2|
 |4|0 0 0 0 1 2|
 |5|0 0 0 0 0 2|
-6. When you run out of snowballs, you must go to a snowball fort tile. You can spend one turn "safe" while on a snowball fort tile.
+6. When you run out of snowballs, you must go to a snowball fort tile. You can spend one turn "safe" while on a snowball fort tile. [^2]
 7. When your HP reaches 0, you are out. 
 8. When hit by a snowball, you are thrown back one tile, regardless whether or not there is a path or not. [^1]
 
 [^1]: A path is a trail leading a straight line. If the trail turns or ends, even before the edge of the board, that specified path ends. 
+[^2]: Forts are spread throughout the board, and the amount of them depends on the amount of players playing. Forts only respawn once every other fort on the board has been used. 
