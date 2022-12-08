@@ -34,7 +34,7 @@ public class Player
 
         this.indexes = indexes;
 
-        this.health = 1;
+        this.health = 10;
         this.speed = speed;
         this.strength = strength;
 
