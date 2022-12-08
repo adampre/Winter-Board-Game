@@ -8,6 +8,7 @@ public class Player
 {
     public Image image;
 
+    //position of player
     public Point indexes;
 
     public int health;

@@ -2,7 +2,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 
-public class GUI extends JFrame implements ActionListener
+public class GUI extends JFrame
 {
     private GamePanel gamePanel; 
 
@@ -10,12 +10,14 @@ public class GUI extends JFrame implements ActionListener
     {
         this.setTitle("Winter Game");
         this.setLayout(new BorderLayout());
-        this.setBounds(0, 0, 1000, 1000);
+        this.setBounds(0, 0, 1100, 1000);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        gamePanel = new GamePanel(numberOfPlayers, this.getWidth());
+        gamePanel = new GamePanel(numberOfPlayers, this.getWidth() - 100);
         gamePanel.initPlayers();
         gamePanel.initBoard();
+
+        this.addMouseListener(gamePanel);
 
         this.add(gamePanel, BorderLayout.CENTER);
     }
@@ -24,12 +26,4 @@ public class GUI extends JFrame implements ActionListener
     {
         this.setVisible(true);
     }
-
-    @Override
-    public void actionPerformed(ActionEvent e) 
-    {
-        // TODO Auto-generated method stub
-        
-    }
-    
 }

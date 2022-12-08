@@ -1,32 +1,48 @@
 import java.awt.*;
 import javax.swing.*;
+import java.awt.event.*;
 
 import java.util.Random;
 import java.awt.Point;
 import java.io.File;
 
-public class GamePanel extends JPanel
+import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
+
+public class GamePanel extends JPanel implements MouseListener, ActionListener
 {
     private final File[] IMAGEFILES = {new File("PlayerImages/Player1.png"), new File("PlayerImages/Player2.png"), new File("PlayerImages/Player3.png"), new File("PlayerImages/Player4.png")};   
-    private final File FORTIMAGE = new File("fort.png"); 
     private final Random RANDOM = new Random();
 
-    private int dimension;
     private int tileSize;
 
-    public Tile[][] board;
+    private Tile[][] board;
+    private LinkedList<Fort> forts;
 
-    public Player[] players;
+    private Player[] players;
+    private int currentPlayer;
+
+    private Game game;
+
+    private ChoicePanel choicePanel;
 
     public GamePanel(int numberOfPlayers, int dimension)
     {
-        this.dimension = dimension;
+        this.setLayout(new BorderLayout());
+
+        choicePanel = new ChoicePanel();
+        this.add(choicePanel, BorderLayout.EAST);
 
         this.tileSize = (dimension - 50) / (numberOfPlayers + 4);
 
         board = new Tile[numberOfPlayers + 4][numberOfPlayers + 4];
+        forts = new LinkedList<Fort>();
 
         players = new Player[numberOfPlayers];
+        currentPlayer = 0;
+
+        game = new Game();
     }
 
     public void initPlayers()
@@ -87,48 +103,81 @@ public class GamePanel extends JPanel
         {
             for(int j = 0; j < generate[i].length; j++)
             {
-                double random = Math.random();
+                if(Math.random() < 0.8) 
+                {
+                    double random = Math.random();
 
-                //up
-                if(i != 0 && random < 0.25)
-                {
-                    if(amountOfPaths(generate[j][i]) < 2 && amountOfPaths(generate[j][i - 1]) < 2)
+                    //up
+                    if(i != 0 && random < 0.25)
                     {
-                        generate[j][i] = "-" + generate[j][i].substring(1, 4);
-                        generate[j][i - 1] = generate[j][i - 1].substring(0, 3) + "-";
+                        if(amountOfPaths(generate[j][i]) < 2 && amountOfPaths(generate[j][i - 1]) < 2)
+                        {
+                            generate[j][i] = "-" + generate[j][i].substring(1, 4);
+                            generate[j][i - 1] = generate[j][i - 1].substring(0, 3) + "-";
+                        }
                     }
-                }
-                //left
-                else if(j != 0 && random < 0.5)
-                {
-                    if(amountOfPaths(generate[j][i]) < 2 && amountOfPaths(generate[j - 1][i]) < 2)
+                    //left
+                    else if(j != 0 && random < 0.5)
                     {
-                        generate[j][i] = generate[j][i].substring(0, 1) + "-" + generate[j][i].substring(2, 4);
-                        generate[j - 1][i] = generate[j - 1][i].substring(0, 2) + "-" + generate[j - 1][i].substring(3, 4);
+                        if(amountOfPaths(generate[j][i]) < 2 && amountOfPaths(generate[j - 1][i]) < 2)
+                        {
+                            generate[j][i] = generate[j][i].substring(0, 1) + "-" + generate[j][i].substring(2, 4);
+                            generate[j - 1][i] = generate[j - 1][i].substring(0, 2) + "-" + generate[j - 1][i].substring(3, 4);
+                        }
                     }
-                }
-                //right
-                else if(j != generate[i].length - 1 && random < 0.75)
-                {
-                    if(amountOfPaths(generate[j][i]) < 2 && amountOfPaths(generate[j + 1][i]) < 2)
+                    //right
+                    else if(j != generate[i].length - 1 && random < 0.75)
                     {
-                        generate[j + 1][i] = generate[j + 1][i].substring(0, 1) + "-" + generate[j + 1][i].substring(2, 4);
-                        generate[j][i] = generate[j][i].substring(0, 2) + "-" + generate[j][i].substring(3, 4);
+                        if(amountOfPaths(generate[j][i]) < 2 && amountOfPaths(generate[j + 1][i]) < 2)
+                        {
+                            generate[j + 1][i] = generate[j + 1][i].substring(0, 1) + "-" + generate[j + 1][i].substring(2, 4);
+                            generate[j][i] = generate[j][i].substring(0, 2) + "-" + generate[j][i].substring(3, 4);
+                        }
                     }
-                }
-                //down
-                else if(i != generate.length - 1)
-                {
-                    if(amountOfPaths(generate[j][i]) < 2 && amountOfPaths(generate[j][i + 1]) < 2)
+                    //down
+                    else if(i != generate.length - 1)
                     {
-                        generate[j][i + 1] = "-" + generate[j][i + 1].substring(1, 4);
-                        generate[j][i] = generate[j][i].substring(0, 3) + "-";
+                        if(amountOfPaths(generate[j][i]) < 2 && amountOfPaths(generate[j][i + 1]) < 2)
+                        {
+                            generate[j][i + 1] = "-" + generate[j][i + 1].substring(1, 4);
+                            generate[j][i] = generate[j][i].substring(0, 3) + "-";
+                        }
                     }
                 }
             }
         }
 
+        for(int i = 0; i < players.length + 3; i++)
+        {
+            Point index = null;
+            boolean exists = false;
+
+            do
+            {
+                index = new Point(RANDOM.nextInt(board[0].length), RANDOM.nextInt(board.length));
+            }
+            while(containsFort(index));
+
+            if(!exists)
+            {
+                forts.add(new Fort(index, tileSize / 3));
+            }
+        }
+
         return generate;
+    }
+
+    private boolean containsFort(Point index)
+    {
+        for(int i = 0; i < forts.size(); i++)
+        {
+            if(forts.get(i).position.equals(index))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private int amountOfPaths(String word)
@@ -159,7 +208,6 @@ public class GamePanel extends JPanel
         {
             for(int j = 0; j < board[i].length; j++)
             {
-                System.out.println(generatedBoard[j][i]);
                 board[j][i] = new Tile(new File("Tiles/" + generatedBoard[j][i] + ".png"), new Point(j, i), generatedBoard[j][i]);
             }
         }
@@ -185,6 +233,63 @@ public class GamePanel extends JPanel
                 }
             }
         }
+
+        for(int i = 0; i < forts.size(); i++)
+        {
+            if(forts.get(i).image != null)
+            {
+                g.drawImage(forts.get(i).image, forts.get(i).position.x * tileSize, forts.get(i).position.y * tileSize, forts.get(i).dimension, forts.get(i).dimension, null);
+            }
+        }
+    }
+
+    private void drawLegalMoves(Graphics g)
+    {
+        List<Point> moves = game.generateMoves(players[currentPlayer].indexes, players[currentPlayer].indexes, players[currentPlayer].speed, board);
+
+        //alternates between green and red
+        Color color = Color.GREEN;
+
+        for(int i = 0; i < moves.size(); i++)
+        {
+            g.setColor(color);
+
+            g.fillOval((moves.get(i).x * tileSize) + (tileSize / 3), (moves.get(i).y * tileSize) + (tileSize / 3), tileSize / 3, tileSize / 3);
+
+            if(color.equals(Color.GREEN))
+            {
+                color = Color.RED;
+            }
+            else
+            {
+                color = Color.GREEN;
+            }
+        }
+    }
+
+    private Point getIndexOfClick(Point click)
+    {
+        for(int i = 0; i < board.length; i++)
+        {
+            for(int j = 0; j < board[i].length; j++)
+            {
+                if((board[j][i].position.x < click.x + 8 && click.x < board[j][i].position.x + tileSize + 8) && 
+                   (board[j][i].position.y + 30 < click.y && click.y < board[j][i].position.y + tileSize + 30))
+                {
+                    return new Point(j, i);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private void executeMove(Point index)
+    {
+        if(game.isLegalMove(players[currentPlayer].indexes, players[currentPlayer].speed, index, board))
+        {
+
+        }
     }
 
     @Override
@@ -195,5 +300,51 @@ public class GamePanel extends JPanel
         drawBoard(g);
 
         drawPlayers(g);
+
+        drawLegalMoves(g);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) 
+    {
+        Point index = getIndexOfClick(e.getPoint());
+        
+        if(index != null)
+        {
+            //executeMove(index);
+        }
+
+        repaint();
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) 
+    {
+        //if()
+        
     }
 }
