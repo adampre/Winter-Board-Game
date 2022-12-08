@@ -7,7 +7,6 @@ import java.awt.Point;
 import java.io.File;
 
 import java.util.LinkedList;
-import java.util.ArrayList;
 import java.util.List;
 
 enum Choice 
@@ -303,7 +302,7 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
 
     private void drawLegalSnowballs(Graphics g)
     {
-        List<Point> moves = game.snowBallPaths(players[currentPlayer].indexes, "", 4, board);
+        List<Point> moves = game.snowBallPaths(players[currentPlayer].indexes, "", 6, board);
 
         for(int i = 0; i < moves.size(); i++)
         {
@@ -436,7 +435,132 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
 
     private int calculateDamage(int distance)
     {
-        return 1;
+        int roll = RANDOM.nextInt(6);
+
+        switch(distance)
+        {
+            case 1: 
+            switch(roll)
+            {
+                case 0: 
+                return 1;
+
+                case 1: 
+                return 1;
+
+                case 2: 
+                return 1;
+
+                case 3: 
+                return 1;
+
+                case 4: 
+                return 2; 
+            }
+            break;
+
+            case 2: 
+            switch(roll)
+            {
+                case 0: 
+                return 0;
+
+                case 1: 
+                return 1;
+
+                case 2: 
+                return 1;
+
+                case 3: 
+                return 1;
+
+                case 4: 
+                return 1; 
+            }
+            break;
+
+            case 3: 
+            switch(roll)
+            {
+                case 0: 
+                return 0;
+
+                case 1: 
+                return 0;
+
+                case 2: 
+                return 1;
+
+                case 3: 
+                return 1;
+
+                case 4: 
+                return 1; 
+            }
+            break;
+
+            case 4: 
+            switch(roll)
+            {
+                case 0: 
+                return 0;
+
+                case 1: 
+                return 0;
+
+                case 2: 
+                return 0;
+
+                case 3: 
+                return 1;
+
+                case 4: 
+                return 1; 
+            }
+            break;
+
+            case 5: 
+            switch(roll)
+            {
+                case 0: 
+                return 0;
+
+                case 1: 
+                return 0;
+
+                case 2: 
+                return 0;
+
+                case 3: 
+                return 0;
+
+                case 4: 
+                return 1; 
+            }
+            break;
+
+            case 6: 
+            switch(roll)
+            {
+                case 0: 
+                return 0;
+
+                case 1: 
+                return 0;
+
+                case 2: 
+                return 0;
+
+                case 3: 
+                return 0;
+
+                case 4: 
+                return 0; 
+            }
+            break;
+        }
+
+        return 2;
     }
 
     private void updatePlayerDisplay()

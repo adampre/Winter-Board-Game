@@ -68,7 +68,7 @@ public class Game
 
     public boolean isLegalSnowBall(Point position, Point click, Tile[][] board)
     {
-        List<Point> moves = snowBallPaths(position, "", 4, board);
+        List<Point> moves = snowBallPaths(position, "", 6, board);
 
         for(int i = 0; i < moves.size(); i++)
         {
