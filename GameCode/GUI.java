@@ -1,6 +1,5 @@
 import java.awt.*;
 import javax.swing.*;
-import java.awt.event.*;
 
 public class GUI extends JFrame
 {
@@ -10,10 +9,10 @@ public class GUI extends JFrame
     {
         this.setTitle("Winter Game");
         this.setLayout(new BorderLayout());
-        this.setBounds(0, 0, 1100, 1000);
+        this.setBounds(0, 0, 1400, 1000);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        gamePanel = new GamePanel(numberOfPlayers, this.getWidth() - 100);
+        gamePanel = new GamePanel(numberOfPlayers, this.getWidth() - 400);
         gamePanel.initPlayers();
         gamePanel.initBoard();
 

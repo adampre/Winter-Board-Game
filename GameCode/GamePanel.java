@@ -10,6 +10,13 @@ import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.List;
 
+enum Choice 
+{
+    throwSnowball, 
+    moveTile, 
+    None,    
+}
+
 public class GamePanel extends JPanel implements MouseListener, ActionListener
 {
     private final File[] IMAGEFILES = {new File("PlayerImages/Player1.png"), new File("PlayerImages/Player2.png"), new File("PlayerImages/Player3.png"), new File("PlayerImages/Player4.png")};   
@@ -26,6 +33,7 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
     private Game game;
 
     private ChoicePanel choicePanel;
+    private Choice choice;
 
     public GamePanel(int numberOfPlayers, int dimension)
     {
@@ -33,6 +41,10 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
 
         choicePanel = new ChoicePanel();
         this.add(choicePanel, BorderLayout.EAST);
+        choicePanel.throwSnowball.addActionListener(this);
+        choicePanel.moveTiles.addActionListener(this);
+
+        choice = Choice.None;
 
         this.tileSize = (dimension - 50) / (numberOfPlayers + 4);
 
@@ -103,7 +115,7 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
         {
             for(int j = 0; j < generate[i].length; j++)
             {
-                if(Math.random() < 0.8) 
+                if(Math.random() < 0.5) 
                 {
                     double random = Math.random();
 
@@ -147,22 +159,8 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
             }
         }
 
-        for(int i = 0; i < players.length + 3; i++)
-        {
-            Point index = null;
-            boolean exists = false;
-
-            do
-            {
-                index = new Point(RANDOM.nextInt(board[0].length), RANDOM.nextInt(board.length));
-            }
-            while(containsFort(index));
-
-            if(!exists)
-            {
-                forts.add(new Fort(index, tileSize / 3));
-            }
-        }
+        //forts
+        initForts();
 
         return generate;
     }
@@ -217,7 +215,10 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
     {
         for(int i = 0; i < players.length; i++)
         {
-            g.drawImage(players[i].image, players[i].indexes.x * tileSize, players[i].indexes.y * tileSize, tileSize, tileSize, null);
+            if(players[i].health > 0)
+            {
+                g.drawImage(players[i].image, players[i].indexes.x * tileSize, players[i].indexes.y * tileSize, tileSize, tileSize, null);
+            }
         }
     }
 
@@ -247,6 +248,22 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
     {
         List<Point> moves = game.generateMoves(players[currentPlayer].indexes, players[currentPlayer].indexes, players[currentPlayer].speed, board);
 
+        for(int i = 0; i < moves.size(); i++)
+        {
+            for(int j = 0; j < players.length; j++)
+            {
+                if(j != currentPlayer)
+                {
+                    if(moves.get(i).equals(players[j].indexes))
+                    {
+                        moves.remove(i);
+
+                        i--;
+                    }
+                }
+            }
+        }
+
         //alternates between green and red
         Color color = Color.GREEN;
 
@@ -273,8 +290,8 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
         {
             for(int j = 0; j < board[i].length; j++)
             {
-                if((board[j][i].position.x < click.x + 8 && click.x < board[j][i].position.x + tileSize + 8) && 
-                   (board[j][i].position.y + 30 < click.y && click.y < board[j][i].position.y + tileSize + 30))
+                if(((board[j][i].position.x * tileSize) < click.x + 8 && click.x < (board[j][i].position.x * tileSize) + tileSize + 8) && 
+                   ((board[j][i].position.y * tileSize) + 30 < click.y && click.y < (board[j][i].position.y * tileSize) + tileSize + 30))
                 {
                     return new Point(j, i);
                 }
@@ -284,12 +301,158 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
         return null;
     }
 
+    private void drawLegalSnowballs(Graphics g)
+    {
+        List<Point> moves = game.snowBallPaths(players[currentPlayer].indexes, "", 4, board);
+
+        for(int i = 0; i < moves.size(); i++)
+        {
+            if(playerOnTile(moves.get(i)) != -1 && players[playerOnTile(moves.get(i))].isSafe)
+            {
+                moves.remove(i);
+
+                i--;
+            }
+        }
+
+        //alternates between green and red
+        Color color = Color.GREEN;
+
+        for(int i = 0; i < moves.size(); i++)
+        {
+            g.setColor(color);
+
+            g.fillOval((moves.get(i).x * tileSize) + (tileSize / 3), (moves.get(i).y * tileSize) + (tileSize / 3), tileSize / 3, tileSize / 3);
+
+            if(color.equals(Color.GREEN))
+            {
+                color = Color.RED;
+            }
+            else
+            {
+                color = Color.GREEN;
+            }
+        }
+    }
+
+    private int playerOnTile(Point click)
+    {
+        for(int i = 0; i < players.length; i++)
+        {
+            if(players[i].indexes.equals(click))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private int isOnFort()
+    {
+        for(int i = 0; i < forts.size(); i++)
+        {
+            if(players[currentPlayer].indexes.equals(forts.get(i).position))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     private void executeMove(Point index)
     {
-        if(game.isLegalMove(players[currentPlayer].indexes, players[currentPlayer].speed, index, board))
+        if(game.isLegalMove(players[currentPlayer].indexes, players[currentPlayer].speed, index, board) && playerOnTile(index) == -1)
         {
+            players[currentPlayer].indexes = index;
 
+            if(players[currentPlayer].isSafe)
+            {
+                players[currentPlayer].isSafe = false;
+            }
+
+            if(isOnFort() != -1 && players[currentPlayer].numberofSnowballs != players[currentPlayer].strength)
+            {
+                players[currentPlayer].isSafe = true;
+
+                players[currentPlayer].numberofSnowballs = players[currentPlayer].strength;
+
+                forts.remove(isOnFort());
+            }
+
+            if(forts.size() == 0)
+            {
+                initForts();
+            }
+
+            choicePanel.canMoveTiles = false;
         }
+    }
+
+    private void initForts()
+    {
+        for(int i = 0; i < players.length + 3; i++)
+        {
+            Point index = null;
+            boolean exists = false;
+
+            do
+            {
+                index = new Point(RANDOM.nextInt(board[0].length), RANDOM.nextInt(board.length));
+            }
+            while(containsFort(index));
+
+            if(!exists)
+            {
+                forts.add(new Fort(index, tileSize / 3));
+            }
+        }
+    }
+
+    private void executeSnowball(Point index)
+    {
+        if(game.isLegalSnowBall(players[currentPlayer].indexes, index, board))
+        {
+            if(playerOnTile(index) != -1 && !players[playerOnTile(index)].isSafe)
+            {
+                //same vertical line
+                if(players[currentPlayer].indexes.x == index.x) 
+                {
+                    players[playerOnTile(index)].health -= calculateDamage(Math.abs(players[currentPlayer].indexes.x - index.x));
+                }
+                //same horizontal line
+                else
+                {
+                    players[playerOnTile(index)].health -= calculateDamage(Math.abs(players[currentPlayer].indexes.y - index.y));
+                }
+            }
+
+            players[currentPlayer].numberofSnowballs--;
+
+            choicePanel.canThrowSnowball = false;
+        }
+    }
+
+    private int calculateDamage(int distance)
+    {
+        return 1;
+    }
+
+    private void updatePlayerDisplay()
+    {
+        String displayText = "";
+
+        for(int i = 0; i < players.length; i++)
+        {
+            displayText += "Player " + (i + 1) + ":\n";
+            displayText += "Health - " + players[i].health + "\n";
+            displayText += "Strength - " + players[i].strength + "\n";
+            displayText += "Speed - " + players[i].speed + "\n";
+            displayText += "Number of Snowballs - " + players[i].numberofSnowballs + "\n\n";
+        }
+
+        choicePanel.playerDisplay.setText(displayText);
     }
 
     @Override
@@ -301,7 +464,21 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
 
         drawPlayers(g);
 
-        drawLegalMoves(g);
+        updatePlayerDisplay();
+
+        switch(choice) 
+        {
+            case None: 
+            break; 
+
+            case throwSnowball: 
+            drawLegalSnowballs(g);
+            break;
+
+            case moveTile: 
+            drawLegalMoves(g);
+            break;
+        }
     }
 
     @Override
@@ -311,7 +488,57 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
         
         if(index != null)
         {
-            //executeMove(index);
+            switch(choice) 
+            {
+                case None: 
+                break; 
+
+                case throwSnowball: 
+                executeSnowball(index);
+                break;
+
+                case moveTile: 
+                executeMove(index);
+                break;
+            }
+        }
+
+        choicePanel.update();
+
+        choice = Choice.None;
+
+        if(!choicePanel.canMoveTiles && !choicePanel.canThrowSnowball)
+        {
+            int possibleWinner = currentPlayer;
+
+            do
+            {
+                currentPlayer++;
+
+                if(currentPlayer == players.length)
+                {
+                    currentPlayer = 0;
+                }
+
+                if(currentPlayer == possibleWinner)
+                {
+                    repaint();
+
+                    JOptionPane.showMessageDialog(null, "Player " + (possibleWinner + 1) + " has won!");
+
+                    System.exit(0);
+                }
+            }
+            while(players[currentPlayer].health <= 0);
+
+            choicePanel.reset();
+        }
+
+        if(players[currentPlayer].numberofSnowballs == 0)
+        {
+            choicePanel.canThrowSnowball = false;
+
+            choicePanel.update();
         }
 
         repaint();
@@ -344,7 +571,31 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
     @Override
     public void actionPerformed(ActionEvent e) 
     {
-        //if()
+        JButton button = (JButton)e.getSource();
+
+        if(button == choicePanel.throwSnowball)
+        {
+            if(choice == Choice.throwSnowball)
+            {
+                choice = Choice.None;
+            }
+            else
+            {
+                choice = Choice.throwSnowball;
+            }
+        }
+        else if(button == choicePanel.moveTiles)
+        { 
+            if(choice == Choice.moveTile)
+            {
+                choice = Choice.None;
+            }
+            else
+            {
+                choice = Choice.moveTile;
+            }
+        }
         
+        repaint();
     }
 }
