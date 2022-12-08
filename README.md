@@ -14,12 +14,12 @@ Coding assignment for my class, HL IB Computer Science 2. I coded a winter theme
 
 |Number of Squares Away|Damage|
 |:---:|:---:|
-|0|1 1 1 1 2 2|
-|1|0 1 1 1 1 2|
-|2|0 0 1 1 1 2|
-|3|0 0 0 1 1 2|
-|4|0 0 0 0 1 2|
-|5|0 0 0 0 0 2|
+|1|1 1 1 1 2 2|
+|2|0 1 1 1 1 2|
+|3|0 0 1 1 1 2|
+|4|0 0 0 1 1 2|
+|5|0 0 0 0 1 2|
+|6|0 0 0 0 0 2|
 6. When you run out of snowballs, you must go to a snowball fort tile. You can spend one turn "safe" while on a snowball fort tile. [^2]
 7. When your HP reaches 0, you are out. 
 8. When hit by a snowball, you are thrown back one tile, regardless whether or not there is a path or not. [^1]
