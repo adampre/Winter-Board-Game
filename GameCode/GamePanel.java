@@ -419,11 +419,33 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener
                 if(players[currentPlayer].indexes.x == index.x) 
                 {
                     players[playerOnTile(index)].health -= calculateDamage(Math.abs(players[currentPlayer].indexes.x - index.x));
+
+                    //knock down
+                    if(players[playerOnTile(index)].indexes.y < board.length - 1 && players[playerOnTile(index)].indexes.y > players[currentPlayer].indexes.y)
+                    {
+                        players[playerOnTile(index)].indexes.y++;
+                    }
+                    //knock up
+                    else if(players[playerOnTile(index)].indexes.y > 0 && players[playerOnTile(index)].indexes.y < players[currentPlayer].indexes.y)
+                    {
+                        players[playerOnTile(index)].indexes.y--;
+                    }
                 }
                 //same horizontal line
                 else
                 {
                     players[playerOnTile(index)].health -= calculateDamage(Math.abs(players[currentPlayer].indexes.y - index.y));
+
+                    //knock right
+                    if(players[playerOnTile(index)].indexes.x < board[0].length - 1 && players[playerOnTile(index)].indexes.x > players[currentPlayer].indexes.x)
+                    {
+                        players[playerOnTile(index)].indexes.x++;
+                    }
+                    //knock left
+                    else if(players[playerOnTile(index)].indexes.x > 0 && players[playerOnTile(index)].indexes.x < players[currentPlayer].indexes.x)
+                    {
+                        players[playerOnTile(index)].indexes.x--;
+                    }
                 }
             }
 
